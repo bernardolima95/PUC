@@ -23,7 +23,7 @@ public class Grafos {
     private JLabel orig;
     private JButton menorDistancia;
     private JButton button1;
-    private JButton button2;
+    private JButton caixeiroViajante;
     public static ArrayList<Aeroporto> aeroportos = new ArrayList<>();
     public static ArrayList<Rota> rotas = new ArrayList<>();
     public static MatrizInc matrizInc = new MatrizInc();
@@ -101,6 +101,38 @@ public class Grafos {
                     f.printStackTrace();
                 }
         }
+        });
+
+        caixeiroViajante.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e){
+                textArea1.setText("CLICADO");
+                String nome1 = nomeAero1.getText();
+                String nome2 = nomeAero2.getText();
+                ArrayList<String> trajeto = new ArrayList<String>();
+                ArrayList<Rota> rotasTrajeto = new ArrayList<Rota>();
+                CicloHamiltoniano ch = new CicloHamiltoniano();
+                ch.findHamiltonianCycle(matrizInc);
+                CaixeiroViajante cv = new CaixeiroViajante();
+                trajeto = cv.tsp(matrizInc);
+
+                textArea1.setText(trajeto.toString());
+                rotasTrajeto = formaRotas(trajeto);
+
+                try{
+                    BufferedImage atualizada = ImageIO.read(new File("src/original.jpg"));
+                    for (int i = 0; i < rotasTrajeto.size(); i++){
+                        desenharTrajeto(atualizada, rotasTrajeto.get(i));
+                    }
+                    Image dimg = atualizada.getScaledInstance(1200, 800, Image.SCALE_SMOOTH);
+                    ImageIcon iconNew = new ImageIcon(dimg);
+                    ImageIO.write(atualizada, "jpg", new File("src/atualizada.jpg"));
+                    jl.setIcon(iconNew);
+                }
+                catch (IOException f){
+                    f.printStackTrace();
+                }
+            }
         });
 
         BufferedImage img = ImageIO.read(new File("src/equiretangular.jpg"));
@@ -208,8 +240,8 @@ public class Grafos {
         g2d.setColor(Color.BLUE);
         g2d.setFont(new Font("Arial Black", Font.PLAIN, 8));
 
-        System.out.println("Rotas:" +rota.getAeroporto1());
-        System.out.println(rota.getAeroporto2());
+//        System.out.println("Rotas:" +rota.getAeroporto1());
+//        System.out.println(rota.getAeroporto2());
 
         for (int i = 0; i < aeroportos.size(); i++){
             if (rota.getAeroporto1().equals(aeroportos.get(i).getNome())){
