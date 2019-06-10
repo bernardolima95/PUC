@@ -3,6 +3,7 @@ public class Rota {
     private String aeroporto1;
     private String aeroporto2;
     private int preco;
+    private int alt;
 
     public String getAeroporto1() {
         return aeroporto1;
@@ -28,15 +29,29 @@ public class Rota {
         this.preco = preco;
     }
 
+    public int getAlt() {
+        return alt;
+    }
+
+    public void setAlt(int alt) {
+        this.alt = alt;
+    }
+
     public Rota(String aeroporto1, String aeroporto2, int preco) {
         this.aeroporto1 = aeroporto1;
         this.aeroporto2 = aeroporto2;
         this.preco = preco;
+        this.alt = 10000;
     }
 
     public Rota(){
         this.aeroporto1 = "";
         this.aeroporto2 = "";
         this.preco = 0;
+        this.alt = 0;
+    }
+
+    public String toString(){
+        return "["+this.getAeroporto1()+"] -> ["+this.getAeroporto2()+"]" + "Altitude: "+this.getAlt();
     }
 }

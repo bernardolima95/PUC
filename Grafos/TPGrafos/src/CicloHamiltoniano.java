@@ -1,83 +1,92 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 
-public class CicloHamiltoniano {
+class CicloHamiltoniano {
+        private int     V, contadorCaminho;
+        private int[]   caminho;
+        private int[][] grafo;
+        public ArrayList<String> trajeto = new ArrayList<String>();
+        
+    public boolean encontraCH(int[][] g) {
+        V = g.length;
+        caminho = new int[V];
+        Arrays.fill(caminho, -1);
+        grafo = g;
 
-        private int     V, pathCount;
-        private int[]   path;
-        private Rota[][] graph;
-
-        /** Function to find cycle **/
-        public void findHamiltonianCycle(MatrizInc grafo) {
-            Rota[][] g = grafo.getMatriz();
-            V = g.length;
-            path = new int[V];
-            Arrays.fill(path, -1);
-            graph = g;
-            try
-            {
-                path[0] = 0;
-                pathCount = 1;
-                System.out.println("Me fode");
-                solve(0);
-                System.out.println("No solution");
-            }
-            catch (Exception e)
-            {
-                System.out.println(e.getMessage());
-                display();
-            }
+        try {
+            caminho[0] = 0;
+            contadorCaminho = 1;
+            calcula(0);
+            System.out.println("Sem solução.");
+            return false;
         }
+        catch (Exception e) {
+//                imprime();
+            return true;
+        }
+    }
 
-        /** function to find paths recursively **/
-        public void solve(int vertex){
-            /** solution **/
-            if (graph[vertex][0].getPreco() >= 1 && pathCount == V) {
-                System.out.println("Entrou");
-            }
-            /** all vertices selected but last vertex not linked to 0 **/
-            if (pathCount == V) {
-                System.out.println("Fezzz");
-                return;
-            }
+    public ArrayList<String> trazCH(int[][] g) {
+        long startTime = System.currentTimeMillis();
+        V = g.length;
+        caminho = new int[V];
+        Arrays.fill(caminho, -1);
+        grafo = g;
+
+        try {
+            caminho[0] = 0;
+            contadorCaminho = 1;
+            calcula(0);
+            System.out.println("Não há solução.");
+            return trajeto;
+        }
+        catch (Exception e) {
+            imprime();
+            long endTime   = System.currentTimeMillis();
+            long totalTime = endTime - startTime;
+            System.out.println("Tempo Hamiltoniano:" +totalTime);
+            return trajeto;
+        }
+    }
+
+        public void calcula(int vertice) throws Exception {
+
+            if (grafo[vertice][0] == 1 && contadorCaminho == V) throw new Exception("Ciclo encontrado.");
+
+            if (contadorCaminho == V) return; //Chega ao fim sem encontrar ciclo.
+
             for (int v = 0; v < V; v++) {
-                /** if connected **/
-                System.out.println("Fez");
-                if (graph[vertex][v].getPreco() >= 1) {
-                    /** add to path **/
-                    path[pathCount++] = v;
-                    /** remove connection **/
-                    graph[vertex][v].setPreco(0);
-                    graph[v][vertex].setPreco(0);
-                    /** if vertex not already selected solve recursively **/
-                    if (!isPresent(v))
-                        solve(v);
-                    /** restore connection **/
-                    graph[vertex][v].setPreco(1);
-                    graph[v][vertex].setPreco(1);
-                    /** remove path **/
-                    path[--pathCount] = -1;
-                    Grafos.imprimeMatriz(graph);
+                if (grafo[vertice][v] == 1) {
+                    caminho[contadorCaminho++] = v;
+
+                    grafo[vertice][v] = 0;
+                    grafo[v][vertice] = 0;
+
+                    if (!visitado(v)) calcula(v);
+
+                    grafo[vertice][v] = 1;
+                    grafo[v][vertice] = 1;
+
+                    caminho[--contadorCaminho] = -1;
                 }
             }
-
-            Grafos.imprimeMatriz(graph);
         }
 
-        /** function to check if path is already selected **/
-        public boolean isPresent(int v) {
-            for (int i = 0; i < pathCount - 1; i++) {
-                if (path[i] == v)
+
+        public boolean visitado(int v) {
+            for (int i = 0; i < contadorCaminho - 1; i++)
+                if (caminho[i] == v)
                     return true;
-            }
             return false;
         }
 
-        /** display solution **/
-        public void display()
-        {
-            System.out.print("\nPath : ");
-            for (int i = 0; i <= V; i++)
-                System.out.print(path[i % V] + " ");
+        public ArrayList<String> imprime() {
+            System.out.print("\nCaminho Hamiltoniano Encontrado: ");
+            for (int i = 0; i <= V; i++) {
+                System.out.print(Grafos.descobreNome(caminho[i % V]) + "->");
+                trajeto.add(Grafos.descobreNome(caminho[i % V]));
+            }
             System.out.println();
+            return trajeto;
         }
 }

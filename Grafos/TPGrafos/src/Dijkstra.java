@@ -36,6 +36,7 @@ public class Dijkstra {
     // Calcula o algoritmo de Dijkstra e devolve o trajeto.
     ArrayList<String> calcula(MatrizInc grafo, int inicial, int alvo) {
         trajeto.clear();
+        long startTime = System.currentTimeMillis();
         Rota dist[] = inicializaDist();
         int[] caminho = new int[V];
         Boolean marcado[] = new Boolean[V]; //Vetor boolean que "marca" o vetor como visitado
@@ -73,6 +74,9 @@ public class Dijkstra {
 
         imprimeDijkstra(inicial, dist, caminho, alvo);
         System.out.println("\nTrajeto solicitado: "+trajeto);
+        long endTime   = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        System.out.println("Tempo Dijsktra:" +totalTime);
         return trajeto;
     }
 
