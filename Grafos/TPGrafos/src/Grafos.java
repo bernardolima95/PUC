@@ -163,7 +163,7 @@ public class Grafos {
         Graphics2D g2d = imagem.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setStroke(new BasicStroke(2));
-        g2d.setColor(Color.yellow);
+        g2d.setColor(Color.RED);
         g2d.setFont(new Font("Arial Black", Font.PLAIN, 8));
 
         Ellipse2D.Double shape = new Ellipse2D.Double(x, y, 30, 30);
@@ -191,7 +191,7 @@ public class Grafos {
 
         Graphics2D g2d = imagem.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setColor(Color.ORANGE);
+        g2d.setColor(Color.RED);
         g2d.setFont(new Font("Arial Black", Font.PLAIN, 11));
 
         for (int i = 0; i < aeroportos.size(); i++) {
