@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.BufferedReader;
@@ -44,8 +45,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener {
-    private Button scanBtn;
-    private TextView formatTxt, contentTxt;
+    private Button scanBtn, remover;
+    private EditText removerLivro;
     private ArrayList<Livro> livros = new ArrayList<Livro>();
     MeuAdapter adapter;
     RecyclerView recyclerView;
@@ -55,40 +56,54 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        scanBtn = (Button)findViewById(R.id.scan_button);
-        formatTxt = (TextView)findViewById(R.id.scan_format);
-        contentTxt = (TextView)findViewById(R.id.scan_content);
+        scanBtn = (Button)findViewById(R.id.scan_button);//Inicializa botao de scan
+        remover = (Button)findViewById(R.id.remover); //Inicializa botao de remover
+        removerLivro = (EditText) findViewById(R.id.removerLivro); //...
 
-        Livro l = new Livro("Harry Potter");
+        Livro l = new Livro("Harry Potter", "JK Rowling"); //Adiciona um livro a lista de livros
         livros.add(l);
 
         // set up the RecyclerView
-        recyclerView = findViewById(R.id.meuRecyclerView);
+        recyclerView = findViewById(R.id.meuRecyclerView);//Inicializa o RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MeuAdapter(this, livros);
         recyclerView.setAdapter(adapter);
 
         scanBtn.setOnClickListener(this);
+        remover.setOnClickListener(this);
     }
 
+
     public void onClick(View v){
-        if(v.getId()==R.id.scan_button){
-            IntentIntegrator scanIntegrator = new IntentIntegrator(this);
-            scanIntegrator.initiateScan();
+        switch(v.getId()) {
+            case R.id.scan_button: //Ao clicar o botao de scan
+                IntentIntegrator scanIntegrator = new IntentIntegrator(this);
+                scanIntegrator.initiateScan();
+            case R.id.remover:
+                String nome = removerLivro.getText().toString();
+                for (int i = 0; i < livros.size(); i++) {
+                    if (livros.get(i).getNome().equals(nome)) {
+                        livros.remove(i);
+                        adapter.notifyDataSetChanged();
+                        i = livros.size();
+                        Toast torrada = Toast.makeText(getApplicationContext(), nome + " removido!", Toast.LENGTH_SHORT);
+                        torrada.show();
+                    }
+                }
+                removerLivro.setText("");
         }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanningResult != null) {
+        if (scanningResult != null) {//Pega o codigo ISBN pelo intentIntegrator
             String scanContent = scanningResult.getContents();
             String scanFormat = scanningResult.getFormatName();
+            //Verifica se o codigo eh EAN_13
             if (scanContent != null && scanFormat != null && scanFormat.equalsIgnoreCase("EAN_13")) {
-//                formatTxt.setText("FORMAT: " + scanFormat);
-//                contentTxt.setText("CONTENT: " + scanContent);
                 String bookSearchString = "https://www.googleapis.com/books/v1/volumes?"+
-                        "q=isbn:"+scanContent+"&key=AIzaSyAfGtTIkVQbywYexHitQSG-Jbri3jfGNeI";
-                new GetBookInfo().execute(bookSearchString);
+                        "q=isbn:"+scanContent+"&key=AIzaSyAfGtTIkVQbywYexHitQSG-Jbri3jfGNeI"; //Verifica pelo Google Books que existe um livro
+                new buscaLivro().execute(bookSearchString);//Se sim, pegar dados
 
 
             } else {
@@ -104,13 +119,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     }
 
-    private class GetBookInfo extends AsyncTask<String, Void, String> {
+    private class buscaLivro extends AsyncTask<String, Void, String> {
 
         @Override
-        protected String doInBackground(String... bookURLs) {
+        protected String doInBackground(String... bookURLs) {//Busca a URL na API do Google Books
             StringBuilder bookBuilder = new StringBuilder();
             for (String bookSearchURL : bookURLs) {
-                try {
+                try {//Cria a string com as informacoes do livro a partir do JSON
                     HttpClient bookClient = new DefaultHttpClient();
                     HttpGet bookGet = new HttpGet(bookSearchURL);
                     HttpResponse bookResponse = bookClient.execute(bookGet);
@@ -121,10 +136,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                         InputStreamReader bookInput = new InputStreamReader(bookContent);
                         BufferedReader bookReader = new BufferedReader(bookInput);
                         String lineIn;
-                        while ((lineIn=bookReader.readLine())!=null) {
+                        while ((lineIn=bookReader.readLine())!=null) {//Cria a string
                             bookBuilder.append(lineIn);
                         }
-                        //we have a result
                     }
                 }
                 catch(Exception e){ e.printStackTrace(); }
@@ -132,22 +146,43 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             return bookBuilder.toString();
         }
 
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(String result) {//Pega o titulo do livro.
             try{
                 JSONObject resultObject = new JSONObject(result);
-                JSONArray bookArray = resultObject.getJSONArray("items");
-                JSONObject bookObject = bookArray.getJSONObject(0);
+                JSONArray vetorLivro = resultObject.getJSONArray("items");
+                JSONObject bookObject = vetorLivro.getJSONObject(0);
                 JSONObject volumeObject = bookObject.getJSONObject("volumeInfo");
-                Livro L = new Livro(volumeObject.getString("title"));
-                livros.add(L);
-                adapter.notifyDataSetChanged();
 
-//parse results
+                String titulo = volumeObject.getString("title");//Busca o titulo
+                String autor;
+
+                StringBuilder construirAutor = new StringBuilder(""); //Para construir autor, verificar se existe mais de um e contruir a String
+                try {
+                    JSONArray vetorAutor = volumeObject.getJSONArray("authors");
+                    for (int i = 0; i < vetorAutor.length(); i++) {
+                        if (i > 0) construirAutor.append(", ");
+                        construirAutor.append(vetorAutor.getString(i));
+                    }
+                    autor = construirAutor.toString();
+                }
+                catch (JSONException jse){
+                    autor = "";
+                }
+
+                if(titulo != null){
+                    Livro L = new Livro(titulo, autor);//Cria o livro
+                    livros.add(L);
+                    adapter.notifyDataSetChanged();//Avisa ao RecyclerView que os dados mudaram
+                }
+                else{
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "Livro nao encontrado no Google Books", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
-//parse search results
         }
     }
 

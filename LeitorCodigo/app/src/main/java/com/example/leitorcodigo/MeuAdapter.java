@@ -31,7 +31,7 @@ public class MeuAdapter extends RecyclerView.Adapter<MeuAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Livro livro = mData.get(position);
-        holder.myTextView.setText(livro.getNome());
+        holder.myTextView.setText(livro.toString());
     }
 
     // Conta numero de colunas
