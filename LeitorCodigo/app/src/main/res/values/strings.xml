@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">LeitorCodigo</string>
     <string name="scan">Scan</string>
+    <string name="intro">LDDM Final</string>
 </resources>
