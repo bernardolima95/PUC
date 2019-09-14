@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">LeitorCodigo</string>
+    <string name="scan">Scan</string>
+    <string name="intro">LDDM Final</string>
+    <string name="hintRemover">Digite o nome do livro a remover...</string>
+</resources>
