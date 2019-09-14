@@ -3,12 +3,66 @@
 
 #include <iostream>
 #include<vector>
+#define n 300001
 using namespace std;
+int matriz[15000][15000], visitado[15000], visitar[15000], pilha[15000], topo;
+
+void zeraMatriz(int tamanhoRede) {
+	for (int i = 1; i < tamanhoRede + 1; ++i) {
+		for (int j = 1; j < tamanhoRede + 1; ++j) {
+			matriz[i][j] = 0;
+		}
+		std::cout << std::endl;
+	}
+}
+
+void imprimeMatriz(int tamanhoRede) {
+	for (int i = 1; i < tamanhoRede + 1; ++i){
+		for (int j = 1; j < tamanhoRede + 1; ++j){
+			std::cout << matriz[i][j] << ' ';
+		}
+		std::cout << std::endl;
+    }
+}
+
+void contaMatriz(int tamanhoRede) {
+	for (int i = 1; i < tamanhoRede + 1; ++i) {
+		for (int j = 1; j < tamanhoRede + 1; ++j) {
+		}
+	}
+}
+
+int contaVertices(int tamanhoRede, int vertice) {
+	visitado[vertice] = 1;
+	int k = 1, nVertices = 0;
+	while (k < tamanhoRede)
+	{
+		for (int j = tamanhoRede; j >= 1; j--)
+			if (matriz[vertice][j] != 0 && visitado[j] != 1 && visitar[j] != 1)
+			{
+				visitar[j] = 1;
+				pilha[topo] = j;
+				nVertices++;
+				topo++;
+			}
+		vertice = pilha[--topo];
+		cout << vertice << " ";
+		k++;
+		visitar[vertice] = 0; visitado[vertice] = 1;
+	}
+
+	std::fill_n(visitar, tamanhoRede, 0);
+	std::fill_n(visitado, tamanhoRede, 0);
+	std::fill_n(pilha, tamanhoRede, 0);
+
+	return nVertices + 1;
+}
 
 int main(){
 	int nTestes = 0, tamanhoRede = 0, nPares = 0;
-	int matriz[10][10] = {};
 	int par1, par2;
+	int vertice;
+	int nVertices;
 	std::cin >> nTestes;
 	for (int i = 0; i < nTestes; i++) {
 		std::cin >> tamanhoRede;
@@ -19,7 +73,16 @@ int main(){
 			matriz[par1][par2] = 1;
 			matriz[par2][par1] = 1;
 		}
+		std::cin >> vertice;
+		imprimeMatriz(tamanhoRede);
+		std::cout << std::endl;
+		cout << vertice << " ";
+		nVertices = contaVertices(tamanhoRede, vertice);
+		std::cout << nVertices;
+		zeraMatriz(tamanhoRede);
+		//imprimeMatriz(tamanhoRede);
 	}
+
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
